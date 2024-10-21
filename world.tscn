@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://b6tuw68aklfr5"]
+[gd_scene load_steps=13 format=3 uid="uid://b6tuw68aklfr5"]
 
 [ext_resource type="TileSet" uid="uid://b3osu2tpbhr74" path="res://tiles.tres" id="1"]
 [ext_resource type="Texture2D" uid="uid://cfh4k2t3hg5cb" path="res://assets/img/viking2.png" id="2"]
@@ -75,9 +75,42 @@ tracks/0/keys = {
 "values": [18, 19]
 }
 
+[sub_resource type="Animation" id="Animation_38r32"]
+resource_name = "Attack"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [28, 29, 30, 31, 32]
+}
+
+[sub_resource type="Animation" id="Animation_282yi"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [27]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_s2kfd"]
 _data = {
+"Attack": SubResource("Animation_38r32"),
 "Idle": SubResource("2"),
+"RESET": SubResource("Animation_282yi"),
 "Run": SubResource("3"),
 "fall": SubResource("4"),
 "jump": SubResource("5")
@@ -100,7 +133,7 @@ script = ExtResource("2_n3qwt")
 texture = ExtResource("2")
 hframes = 9
 vframes = 6
-frame = 9
+frame = 27
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="player"]
 position = Vector2(2.5, 6.5)
@@ -115,5 +148,12 @@ libraries = {
 "": SubResource("AnimationLibrary_s2kfd")
 }
 
+[node name="Timer" type="Timer" parent="player"]
+wait_time = 0.5
+one_shot = true
+
 [node name="background" parent="." instance=ExtResource("4_7vnhs")]
 position = Vector2(-1, 1)
+
+[connection signal="animation_finished" from="player/AnimationPlayer" to="player" method="_on_animation_player_animation_finished"]
+[connection signal="current_animation_changed" from="player/AnimationPlayer" to="player" method="_on_animation_player_current_animation_changed"]

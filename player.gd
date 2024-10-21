@@ -7,7 +7,7 @@ const MAXSPEED = 100
 const JUMPFORCE = 300
 const ACCEL = 10
 
-
+var is_attacking  = false
 var facing_right = true
 var motion = Vector2()
 
@@ -27,17 +27,20 @@ func _physics_process(_delta):
 
 	currentSprite.flip_h = not facing_right
 
-	if Input.is_action_pressed("left"):
-		velocity.x -= ACCEL
-		facing_right = false
-		animPlayer.play("Run")
-	elif Input.is_action_pressed("right"):
-		velocity.x += ACCEL
-		facing_right = true
-		animPlayer.play("Run")
-	else:
-		velocity.x = lerp(velocity.x, 0.0, 0.1)
-		animPlayer.play("Idle")
+	if not is_attacking:
+		if Input.is_action_pressed("left"):
+			velocity.x -= ACCEL
+			facing_right = false
+			animPlayer.play("Run")
+		elif Input.is_action_pressed("right"):
+			velocity.x += ACCEL
+			facing_right = true
+			animPlayer.play("Run")
+		elif is_on_floor():
+			velocity.x = lerp(velocity.x, 0.0, 0.1)
+			animPlayer.play("Idle")
+	
+
 
 	velocity.x = clamp(velocity.x, -MAXSPEED, MAXSPEED)
 
@@ -45,12 +48,28 @@ func _physics_process(_delta):
 		if Input.is_action_just_pressed("jump"):
 			velocity.y = -JUMPFORCE
 
-	if not is_on_floor():
+	if not is_on_floor() and not is_attacking:
 		if velocity.y < 0:
 			animPlayer.play("jump")
 		elif velocity.y > 0:
 			animPlayer.play("fall")
 		else:
 			animPlayer.play("idle")
+			
+	if is_on_floor():
+		if Input.is_action_just_pressed("attack") and not is_attacking:
+			animPlayer.play("Attack")
 
 	move_and_slide()
+	
+	
+func _on_animation_player_current_animation_changed(name: String) -> void:
+	if name == "Attack":
+		print("attack")
+		is_attacking = true
+		
+		$Timer.wait_time = 0.5
+		$Timer.start()
+		
+		await $Timer.timeout
+		is_attacking = false
